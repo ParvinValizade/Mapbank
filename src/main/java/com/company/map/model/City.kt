@@ -1,5 +1,5 @@
 package com.company.map.model
 
 enum class City {
-    Baku,Ganja, Shusha
+    Baku,Ganja, Shusha,London
 }
