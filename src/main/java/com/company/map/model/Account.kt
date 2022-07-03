@@ -8,7 +8,7 @@ data class Account(
     @Id
     val id: String,
     val customerId: String,
-    val balance: Double,
+    var balance: Double,
     val city: City,
     val currency: Currency
 )

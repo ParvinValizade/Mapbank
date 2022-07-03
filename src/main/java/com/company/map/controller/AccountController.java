@@ -2,6 +2,7 @@ package com.company.map.controller;
 
 import com.company.map.dto.AccountDto;
 import com.company.map.dto.CreateAccountRequest;
+import com.company.map.dto.MoneyTransferRequest;
 import com.company.map.dto.UpdateAccountRequest;
 import com.company.map.service.AccountService;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,21 @@ public class AccountController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/withdraw/{id}/{amount}")
+    public ResponseEntity<AccountDto> withdrawMoney(@PathVariable String id, @PathVariable Double amount) {
+        return ResponseEntity.ok(accountService.withdrawMoney(id, amount));
+    }
+
+    @PutMapping("/add/{id}/{amount}")
+    public ResponseEntity<AccountDto> addMoney(@PathVariable String id, @PathVariable Double amount) {
+        return ResponseEntity.ok(accountService.addMoney(id, amount));
+    }
+
+    @PutMapping("/transfer")
+    public ResponseEntity<String> transferMoney(@RequestBody MoneyTransferRequest transferRequest) {
+        accountService.transferMoney(transferRequest);
+        return ResponseEntity.ok("İşleminiz başarıyla alınmıştır!");
+    }
 
 
 

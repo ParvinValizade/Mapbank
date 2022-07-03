@@ -51,4 +51,9 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(exception.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(BalanceNotEnoughException.class)
+    public ResponseEntity<?> accountNotFoundExceptionHandler(BalanceNotEnoughException exception){
+        return new ResponseEntity<>(exception.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }
