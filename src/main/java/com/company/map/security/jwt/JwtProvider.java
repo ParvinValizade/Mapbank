@@ -1,7 +1,6 @@
 package com.company.map.security.jwt;
 
 import com.company.map.security.CustomUserDetailsService;
-import com.company.map.security.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -9,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -20,10 +18,8 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -61,12 +57,7 @@ public class JwtProvider {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining());
 
-        return Jwts.builder().setSubject(username)
-//                .claim("userId",authentication.getId())
-                .claim("roles",authorities)
-                .setExpiration(new Date(System.currentTimeMillis()+JWT_EXPIRATION_IN_MS))
-                .signWith(jwtPrivateKey, SignatureAlgorithm.RS512)
-                .compact();
+        return token(username);
     }
 
     public Authentication getAuthentication(HttpServletRequest request){
@@ -101,6 +92,15 @@ public class JwtProvider {
             return false;
         }
         return true;
+    }
+
+    public String token(String username){
+        return Jwts.builder().setSubject(username)
+//                .claim("userId",authentication.getId())
+//                .claim("roles",authorities)
+                .setExpiration(new Date(System.currentTimeMillis()+JWT_EXPIRATION_IN_MS))
+                .signWith(jwtPrivateKey, SignatureAlgorithm.RS512)
+                .compact();
     }
 
     private String resolveToken(HttpServletRequest request){
