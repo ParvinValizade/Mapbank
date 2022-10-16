@@ -7,7 +7,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +19,6 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Date;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtProvider {
@@ -28,6 +26,9 @@ public class JwtProvider {
     private final CustomUserDetailsService userDetailsService;
     @Value("${authentication.jwt.expiration-in-ms}")
     private Long JWT_EXPIRATION_IN_MS;
+
+    @Value("${authentication.jwt.refreshToken-expiration-in-ms}")
+    private Long refreshTokenDurationMs;
 
     private static final String JWT_TOKEN_PREFIX = "Bearer";
     private static final String JWT_HEADER_STRING = "Authorization";
@@ -53,11 +54,7 @@ public class JwtProvider {
 
     public String generateToken(Authentication authentication){
         String username = ((UserDetails) authentication.getPrincipal()).getUsername();
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining());
-
-        return token(username);
+        return generateAccessToken(username);
     }
 
     public Authentication getAuthentication(HttpServletRequest request){
@@ -94,13 +91,26 @@ public class JwtProvider {
         return true;
     }
 
-    public String token(String username){
+    public String generateAccessToken(String username){
         return Jwts.builder().setSubject(username)
-//                .claim("userId",authentication.getId())
-//                .claim("roles",authorities)
                 .setExpiration(new Date(System.currentTimeMillis()+JWT_EXPIRATION_IN_MS))
                 .signWith(jwtPrivateKey, SignatureAlgorithm.RS512)
                 .compact();
+    }
+
+    public String generateRefreshToken(String username){
+        return Jwts.builder().setSubject(username)
+                .setExpiration(new Date(System.currentTimeMillis()+refreshTokenDurationMs))
+                .signWith(jwtPrivateKey, SignatureAlgorithm.RS512)
+                .compact();
+    }
+
+    public Claims getRefreshTokenClaims(String token){
+        return Jwts.parserBuilder()
+                .setSigningKey(jwtPublicKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     private String resolveToken(HttpServletRequest request){
