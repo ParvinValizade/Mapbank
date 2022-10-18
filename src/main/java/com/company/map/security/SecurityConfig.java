@@ -1,5 +1,7 @@
 package com.company.map.security;
 
+import com.company.map.exception.JWTAccessDeniedHandler;
+import com.company.map.exception.JwtAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,6 +22,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
+    private final JwtAuthenticationEntryPoint authenticationEntryPoint;
+    private final JWTAccessDeniedHandler accessDeniedHandler;
+
     private final JwtAuthorizationFilter jwtAuthorizationFilter;
 
     private static final String[] AUTH_WHITELIST = {
@@ -33,7 +38,10 @@ public class SecurityConfig {
             "/v1/refresh/**"
     };
 
-    public SecurityConfig(JwtAuthorizationFilter jwtAuthorizationFilter) {
+    public SecurityConfig(JwtAuthenticationEntryPoint authenticationEntryPoint,
+                          JWTAccessDeniedHandler accessDeniedHandler, JwtAuthorizationFilter jwtAuthorizationFilter) {
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.accessDeniedHandler = accessDeniedHandler;
         this.jwtAuthorizationFilter = jwtAuthorizationFilter;
     }
 
@@ -55,6 +63,9 @@ public class SecurityConfig {
                 })
                 .formLogin().disable()
                 .httpBasic().disable()
+                .exceptionHandling().accessDeniedHandler(accessDeniedHandler)
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and().addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

@@ -1,6 +1,7 @@
 package com.company.map.service;
 
 import com.company.map.dto.TokenRefreshResponse;
+import com.company.map.exception.TokenIsExpiredException;
 import com.company.map.exception.TokenRefreshException;
 import com.company.map.security.jwt.JwtProvider;
 import io.jsonwebtoken.Claims;
@@ -26,7 +27,7 @@ public class RefreshTokenService {
             return new TokenRefreshResponse(jwtProvider.generateAccessToken(claims.getSubject()),
                     jwtProvider.generateRefreshToken(claims.getSubject()));
         } catch (ExpiredJwtException e){
-         throw new TokenRefreshException(token,"Refresh token is expired..");
+         throw new TokenIsExpiredException("Refresh token is expired..");
         }
     }
 }
