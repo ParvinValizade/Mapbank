@@ -72,14 +72,9 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(e.getMessage(),HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(value = TokenRefreshException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorMessage handleTokenRefreshException(TokenRefreshException ex, WebRequest request) {
-        return new ErrorMessage(
-                HttpStatus.FORBIDDEN.value(),
-                new Date(),
-                ex.getMessage(),
-                request.getDescription(false));
+    @ExceptionHandler(UserAlreadyExistException.class)
+    public ResponseEntity<?> userAlreadyExistException(UserAlreadyExistException e){
+        return new ResponseEntity<>(e.getMessage(),HttpStatus.CONFLICT);
     }
 
 }

@@ -2,7 +2,6 @@ package com.company.map.service;
 
 import com.company.map.dto.TokenRefreshResponse;
 import com.company.map.exception.TokenIsExpiredException;
-import com.company.map.exception.TokenRefreshException;
 import com.company.map.security.jwt.JwtProvider;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

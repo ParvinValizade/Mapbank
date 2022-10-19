@@ -5,6 +5,7 @@ import com.company.map.dto.LoginRequest;
 import com.company.map.dto.TokenResponseDto;
 import com.company.map.dto.UserDto;
 import com.company.map.dto.converter.UserDtoConverter;
+import com.company.map.exception.UserAlreadyExistException;
 import com.company.map.exception.UserNotFoundException;
 import com.company.map.model.User;
 import com.company.map.repository.UserRepository;
@@ -38,6 +39,7 @@ public class UserService {
     }
 
     public UserDto createUser(CreateUserRequest request){
+        checkUserAlreadyExistOrNot(request.getUsername());
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         User user = new User(
                 request.getUsername(),
@@ -64,6 +66,11 @@ public class UserService {
         return new TokenResponseDto(jwtProvider.generateToken(authentication),
                 refreshToken,
                 findUserByUserName(loginRequest.getUsername()));
+    }
+
+    private void checkUserAlreadyExistOrNot(String username){
+        userRepository.findByUsername(username)
+                .ifPresent(user -> {throw new UserAlreadyExistException("User already exist..");});
     }
 
     private User findUser(String username){
